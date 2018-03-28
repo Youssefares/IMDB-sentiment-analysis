@@ -35,7 +35,7 @@ class DataSetReader:
         data.append([
           int(file_data['id']),
           self.string_from_file(dir+file), 
-          int(file_data['label'])
+          int(int(file_data['label']) < 5)
         ])
     return sorted(data, key= lambda x: x[2]*10**8 +x[0])
 
