@@ -22,7 +22,7 @@ class DataSetReader:
     
     # Reading data
     import os, re
-    dirs =  [
+    dirs = [
       self.directory+type+'/pos/',
       self.directory+type+'/neg/'
     ]
@@ -44,3 +44,23 @@ class DataSetReader:
     with open(file) as f:
       review = f.read()
     return review
+
+
+  def tokenize(self, data):
+    from nltk import word_tokenize
+    for d in data:
+      d[1] = word_tokenize(d[1])
+    return data
+
+
+  def remove_stopwords(self, data):
+    from nltk.corpus import stopwords
+    noise = ['``','?','!','.',',',"'","''",':',';','/']
+    stop = set(stopwords.words("english"))
+    for d in data:
+      temp = []
+      for w in d[1]:
+        if w not in stop and w not in noise:
+          temp.append(w)
+      d[1] = temp
+    return data
