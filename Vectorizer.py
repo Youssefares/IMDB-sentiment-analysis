@@ -1,9 +1,12 @@
-from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
 class Vectorizer:
   def __init__(self, type='count', params={}):
     if type == 'count':
       self.vectorizer = CountVectorizer(**params)
+      self.vectorize_call = lambda data: self.vectorizer.fit_transform(data).toarray()
+    elif type == 'tfidf':
+      self.vectorizer = TfidfVectorizer(**params)
       self.vectorize_call = lambda data: self.vectorizer.fit_transform(data).toarray()
 
   def vectorize(self, data):
