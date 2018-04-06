@@ -1,13 +1,16 @@
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
 class Vectorizer:
-  def __init__(self, type='count', params={}):
+  def __init__(self, fit_data, type='count', params={}):
     if type == 'count':
       self.vectorizer = CountVectorizer(**params)
-      self.vectorize_call = lambda data: self.vectorizer.fit_transform(data).toarray()
+      self.vectorizer.fit([' '.join(d[1]) for d in fit_data])
+      self.vectorize_call = lambda data: self.vectorizer.transform(data).toarray()
+    
     elif type == 'tfidf':
       self.vectorizer = TfidfVectorizer(**params)
-      self.vectorize_call = lambda data: self.vectorizer.fit_transform(data).toarray()
+      self.vectorizer.fit([' '.join(d[1]) for d in fit_data])
+      self.vectorize_call = lambda data: self.vectorizer.transform(data).toarray()
 
   def vectorize(self, data):
     # extract reviews from second column

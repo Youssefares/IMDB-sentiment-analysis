@@ -21,8 +21,10 @@ train_StemLS = train_prp.stemmingLS()
 train_StemSB = train_prp.stemmingSB()
 train_StemLemmatize = train_prp.lemmatize()
 
-vectorizer = Vectorizer(type='tfidf', params={'ngram_range': (1, 3)})
+vectorizer = Vectorizer(type='tfidf', fit_data=tr_small, params={'ngram_range': (1, 3)})
 tr_small_vecs = vectorizer.vectorize(tr_small)
+
+
 
 # tst_data = dsr.labelled_string_data('test')
 # tst_prp = PreProcess(tst_data)
