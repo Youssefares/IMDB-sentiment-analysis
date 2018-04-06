@@ -39,28 +39,7 @@ class DataSetReader:
         ])
     return sorted(data, key= lambda x: x[2]*10**8 +x[0])
 
-
   def string_from_file(self, file):
-    with open(file) as f:
+    with open(file, encoding="utf8") as f:
       review = f.read()
     return review
-
-
-  def tokenize(self, data):
-    from nltk import word_tokenize
-    for d in data:
-      d[1] = word_tokenize(d[1])
-    return data
-
-
-  def remove_stopwords(self, data):
-    from nltk.corpus import stopwords
-    noise = ['``','?','!','.',',',"'","''",':',';','/']
-    stop = set(stopwords.words("english"))
-    for d in data:
-      temp = []
-      for w in d[1]:
-        if w not in stop and w not in noise:
-          temp.append(w)
-      d[1] = temp
-    return data
