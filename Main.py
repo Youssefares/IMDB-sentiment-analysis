@@ -1,9 +1,10 @@
 from DataSetReader import DataSetReader
 from PreProcess import PreProcess
 from Vectorizer import Vectorizer
+from Classify import Classify
 import numpy as np
 
-dsr = DataSetReader(directory="./aclImdb/")
+dsr = DataSetReader(directory="../aclImdb/")
 
 tr_data = dsr.labelled_string_data('train')
 # Data split by label
@@ -24,14 +25,23 @@ train_StemLemmatize = train_prp.lemmatize()
 vectorizer = Vectorizer(type='tfidf', fit_data=tr_small, params={'ngram_range': (1, 3)})
 tr_small_vecs = vectorizer.vectorize(tr_small)
 
+tst_data = dsr.labelled_string_data('test')
 
+tst_negative, tst_positive = tst_data[:len(tst_data)//2], tst_data[len(tst_data)//2:]
 
-# tst_data = dsr.labelled_string_data('test')
-# tst_prp = PreProcess(tst_data)
-# tr_data = tst_prp.tokenize()
-# tst_prp.remove_stopwords()
-# tst_StemPS = tst_prp.stemmingPS()
-# tst_StemLS = tst_prp.stemmingLS()
-# tst_StemSB = tst_prp.stemmingSB()
-# tst_StemLemmatize = tst_prp.lemmatize()
-# tst_negative, tst_positive = tst_data[:len(tst_data)//2], tst_data[len(tst_data)//2:]
+tst_small = tst_negative[:500]+tst_positive[:500]
+
+tst_prp = PreProcess(tst_small)
+tst_small = tst_prp.tokenize()
+tst_prp.remove_stopwords()
+tst_StemPS = tst_prp.stemmingPS()
+tst_StemLS = tst_prp.stemmingLS()
+tst_StemSB = tst_prp.stemmingSB()
+tst_StemLemmatize = tst_prp.lemmatize()
+
+tst_small_vecs = vectorizer.vectorize(tst_small)
+
+clf = Classify(tr_small_vecs,tst_small_vecs)
+
+score = clf.DecisionTrees()
+print(score)
