@@ -43,5 +43,5 @@ tst_small_vecs = vectorizer.vectorize(tst_small)
 
 clf = Classify(tr_small_vecs,tst_small_vecs)
 
-score = clf.DecisionTrees()
+score,n,h= clf.RandomForrests()
 print(score)

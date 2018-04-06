@@ -39,19 +39,19 @@ class Classify:
     results.append(['Entropy', score])
     return results
 
-  # def RandomForrests(self,tr_data,tst_data, criterion='gini'):
-  #   from sklearn.ensemble import RandomForestClassifier
-  #   i=0
-  #   n_trees = 10
-  #   clf = RandomForestClassifier(criterion=criterion,n_estimators=n_trees).fit(self.tr_vecs,self.tr_labels)
-  #   h_score = clf.score(self.tst_vecs,self.tst_labels)
-  #   scores = []
-  #   scores.append([0,0])
-  #   scores.append([n_trees, h_score])
-  #   while scores[i + 1][1] >= scores[i][1]:
-  #     n_trees+=10
-  #     clf = RandomForestClassifier(criterion=criterion, n_estimators=n_trees).fit(self.tr_vecs,self.tr_labels)
-  #     h_score = clf.score(self.tst_vecs,self.tst_labels)
-  #     scores.append([n_trees,h_score])
-  #     i+=1
-  #   return scores, n_trees,h_score
+  def RandomForrests(self, criterion='gini'):
+    from sklearn.ensemble import RandomForestClassifier
+    i=0
+    n_trees = 10
+    clf = RandomForestClassifier(criterion=criterion,n_estimators=n_trees).fit(self.tr_vecs,self.tr_labels)
+    h_score = clf.score(self.tst_vecs,self.tst_labels)
+    scores = []
+    scores.append([0,0])
+    scores.append([n_trees, h_score])
+    while scores[i + 1][1] >= scores[i][1]:
+      n_trees+=10
+      clf = RandomForestClassifier(criterion=criterion, n_estimators=n_trees).fit(self.tr_vecs,self.tr_labels)
+      h_score = clf.score(self.tst_vecs,self.tst_labels)
+      scores.append([n_trees,h_score])
+      i+=1
+    return scores, n_trees,h_score
