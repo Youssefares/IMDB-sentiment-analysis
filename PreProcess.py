@@ -13,12 +13,13 @@ class PreProcess:
 
   def remove_stopwords(self):
     from nltk.corpus import stopwords
-    noise = ['``','?','!','.',',',"'","''",':',';','/']
+    import re
     stop = set(stopwords.words("english"))
     for d in self.data:
       temp = []
       for w in d[1]:
-        if w not in stop and w not in noise:
+        # if not a stop word or a piece of punctuation
+        if w not in stop and not re.match(r"[^a-zA-Z\d\s]+", w):
           temp.append(w)
       d[1] = temp
     return self.data

@@ -1,7 +1,7 @@
 from DataSetReader import DataSetReader
 from PreProcess import PreProcess
 
-dsr = DataSetReader(directory="../aclImdb/")
+dsr = DataSetReader(directory="./aclImdb/")
 
 tr_data = dsr.labelled_string_data('train')
 prp = PreProcess(tr_data)
