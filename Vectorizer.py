@@ -1,6 +1,6 @@
 import warnings
 warnings.filterwarnings(action='ignore', category=UserWarning, module='gensim')
-from gensim.models import Word2Vec
+from gensim.models import Word2Vec, FastText
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
@@ -19,6 +19,17 @@ class Vectorizer:
     elif type == 'wordembedd':
       sentences = [d[1] for d in fit_data]
       self.vectorizer = Word2Vec(sentences, **params)
+      self.vectorizer = self.vectorizer.wv
+      self.vectorize_call = lambda data: [
+        np.concatenate(
+            ([np.max(np.array([self.vectorizer[word] for word in sentence if word in self.vectorizer.vocab]), 0)],
+             [np.min(np.array([self.vectorizer[word] for word in sentence if word in self.vectorizer.vocab]), 0)]),
+            axis=1
+        ).flatten() for sentence in data
+      ]
+    elif type == 'fastext':
+      sentences = [d[1] for d in fit_data]
+      self.vectorizer = FastText(sentences, **params)
       self.vectorizer = self.vectorizer.wv
       self.vectorize_call = lambda data: [
         np.concatenate(
