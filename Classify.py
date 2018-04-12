@@ -2,7 +2,7 @@ class Classify:
   """
   Class for classifying data after vectorization
   """
-  def __init__(self, tr_data,tst_data):
+  def __init__(self, tr_data, tst_data):
     self.tr_data = tr_data
     self.tst_data = tst_data
     self.tr_vecs = [d[1] for d in self.tr_data]

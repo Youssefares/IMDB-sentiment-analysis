@@ -2,6 +2,7 @@ from DataSetReader import DataSetReader
 from PreProcess import PreProcess
 from Vectorizer import Vectorizer
 from Classify import Classify
+from NewClassifier import Classifier
 
 dsr = DataSetReader(directory="./aclImdb/")
 
@@ -39,15 +40,42 @@ tst_StemSB = tst_prp.stemmingSB()
 tst_StemLemmatize = tst_prp.lemmatize()
 
 tst_small_vecs = vectorizer.vectorize(tst_small)
-clf = Classify(tr_small_vecs,tst_small_vecs)
 
-score= clf.DecisionTrees()
-print(score)
 
-print(clf.RandomForrests(criterion='entropy'))
+clf = Classifier('SVC', [d[1] for d in tr_small_vecs], [d[2] for d in tr_small_vecs])
+print(clf.tune(
+  {
+    'C': [0.2, 1.0, 2.0, 3.0, 10.0, 100.0],
+    'kernel': ['rbf', 'linear', 'poly', 'sigmoid']
+  },
+  [d[1] for d in tst_small_vecs],
+  [d[2] for d in tst_small_vecs],
+  max_only=False
+  )
+)
 
-print(clf.SVM())
+clf = Classifier('KNN', [d[1] for d in tr_small_vecs], [d[2] for d in tr_small_vecs])
+print(clf.tune(
+  {
+    'n_neighbors': [i for i in range(1, 11, 2)]
+  },
+  [d[1] for d in tst_small_vecs],
+  [d[2] for d in tst_small_vecs],
+  max_only=False
+  )
+)
 
-print(clf.MLP())
 
-print(clf.LogisticRegression())
+
+# clf = Classify(tr_small_vecs,tst_small_vecs)
+
+# score= clf.DecisionTrees()
+# print(score)
+
+# print(clf.RandomForrests(criterion='entropy'))
+
+# print(clf.SVM())
+
+# print(clf.MLP())
+
+# print(clf.LogisticRegression())
