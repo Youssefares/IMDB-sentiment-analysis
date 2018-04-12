@@ -4,8 +4,9 @@ class PreProcess:
   """
   Class for pre-processing the review before passing it for analyzing
   """
-  def __init__(self, data):
-    self.data = data
+  def __init__(self, data, params={}):
+    self.data = copy.deepcopy(data)
+    self.params = params
 
   def tokenize(self):
     from nltk import word_tokenize
@@ -29,11 +30,11 @@ class PreProcess:
   def stemmingPS(self):
     from nltk.stem import PorterStemmer
     ps = PorterStemmer()
-    temp = copy.deepcopy(self.data)
-    for i in range(len(temp)):
-        for j in range(len(temp[i][1])):
-            temp[i][1][j] = ps.stem(temp[i][1][j])
-    return temp
+    # temp = copy.deepcopy(self.data)
+    for i in range(len(self.data)):
+        for j in range(len(self.data[i][1])):
+            self.data[i][1][j] = ps.stem(self.data[i][1][j])
+    return self.data
 
   def stemmingLS(self):
     from nltk.stem import LancasterStemmer
@@ -47,11 +48,11 @@ class PreProcess:
   def stemmingSB(self):
     from nltk.stem import SnowballStemmer
     sb = SnowballStemmer("english")
-    temp = copy.deepcopy(self.data)
-    for i in range(len(temp)):
-        for j in range(len(temp[i][1])):
-            temp[i][1][j] = sb.stem(temp[i][1][j])
-    return temp
+    # temp = copy.deepcopy(self.data)
+    for i in range(len(self.data)):
+        for j in range(len(self.data[i][1])):
+            self.data[i][1][j] = sb.stem(self.data[i][1][j])
+    return self.data
 
   def get_pos(self, word):
       from collections import Counter
@@ -70,10 +71,20 @@ class PreProcess:
 
   def lemmatize(self):
       from nltk.stem import WordNetLemmatizer  # lemmatizes word based on it's parts of speech
-
       wnl = WordNetLemmatizer()
-      temp = copy.deepcopy(self.data)
+      # temp = copy.deepcopy(self.data)
       for i in range(len(self.data)):
           for j in range(len(self.data[i][1])):
               self.data[i][1][j] = wnl.lemmatize(self.data[i][1][j], pos=self.get_pos(self.data[i][1][j]))
       return self.data
+
+  def clean(self, params):
+    params = ['tokenize']+list(params)
+    for p in params:
+      clean_call = getattr(self, p, None)
+      if clean_call:
+        clean_call()
+      else:
+        raise Exception(p.__str__()+' is not an available function')
+    return self.data
+

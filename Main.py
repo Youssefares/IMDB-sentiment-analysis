@@ -3,8 +3,11 @@ from PreProcess import PreProcess
 from Vectorizer import Vectorizer
 from Classify import Classify
 from NewClassifier import Classifier
+import itertools
+import numpy as np
+import matplotlib.pyplot as plt
 
-dsr = DataSetReader(directory="./aclImdb/")
+dsr = DataSetReader(directory="../aclImdb/")
 
 tr_data = dsr.labelled_string_data('train')
 # Data split by label
@@ -14,67 +17,59 @@ tr_negative, tr_positive = tr_data[:len(tr_data)//2], tr_data[len(tr_data)//2:]
 tr_small = tr_negative[:500]+tr_positive[:500]
 
 
-train_prp = PreProcess(tr_small)
-tr_small = train_prp.tokenize()
-train_prp.remove_stopwords()
-#train_StemPS = train_prp.stemmingPS()
-#train_StemLS = train_prp.stemmingLS()
-#train_StemSB = train_prp.stemmingSB()
-train_StemLemmatize = train_prp.lemmatize()
-
-vectorizer = Vectorizer(type='fastext', fit_data=tr_small, params={'min_count': 1})
-tr_small_vecs = vectorizer.vectorize(tr_small)
-
 tst_data = dsr.labelled_string_data('test')
 
 tst_negative, tst_positive = tst_data[:len(tst_data)//2], tst_data[len(tst_data)//2:]
 
 tst_small = tst_negative[:500]+tst_positive[:500]
 
-tst_prp = PreProcess(tst_small)
-tst_small = tst_prp.tokenize()
-tst_prp.remove_stopwords()
-tst_StemPS = tst_prp.stemmingPS()
-tst_StemLS = tst_prp.stemmingLS()
-tst_StemSB = tst_prp.stemmingSB()
-tst_StemLemmatize = tst_prp.lemmatize()
 
-tst_small_vecs = vectorizer.vectorize(tst_small)
+# Preprocessing combinations
+cleaning_operations = ['remove_stopwords','lemmatize','stemmingLS','stemmingPS','stemmingSB'];
+combinations = [i  for j in range(len(cleaning_operations)) for i in itertools.combinations(cleaning_operations,j+1)]
 
+# Vectorization combinations
+vec_list = [['tfidf',{}],['count',{}],['wordembedd',{}],['fasttext',{}]]
 
-clf = Classifier('SVC', [d[1] for d in tr_small_vecs], [d[2] for d in tr_small_vecs])
-print(clf.tune(
-  {
-    'C': [0.2, 1.0, 2.0, 3.0, 10.0, 100.0],
-    'kernel': ['rbf', 'linear', 'poly', 'sigmoid']
-  },
-  [d[1] for d in tst_small_vecs],
-  [d[2] for d in tst_small_vecs],
-  max_only=False
-  )
-)
+# Classifier combinations
+clf_list = [['KNN',{}],['SVC',{}],['DecisionTree',{}],['RandomForestClassifier',{}],['LogisticRegression',{}]
+  ,['MLP',{}],['AdaBoost',{}],['Bagging',{}]]
 
-clf = Classifier('KNN', [d[1] for d in tr_small_vecs], [d[2] for d in tr_small_vecs])
-print(clf.tune(
-  {
-    'n_neighbors': [i for i in range(1, 11, 2)]
-  },
-  [d[1] for d in tst_small_vecs],
-  [d[2] for d in tst_small_vecs],
-  max_only=False
-  )
-)
+clf_list = [['KNN',{'n_neighbors': [i for i in range(1, 4, 2)]}]]
+vec_list = [['tfidf',{}]]
 
 
-# clf = Classify(tr_small_vecs,tst_small_vecs)
+# ex: {'KNN': [(acc, vectorization, preprocessing_ops)], 'LR': ... }
+clf_dict = {clf[0]: {} for clf in clf_list}
+for vec in vec_list:
+  print('Vectorization technique: '+vec[0].__str__())
+  for combination in combinations:
+    print('Preprocessing : ' + combination.__str__())
+    tr_prp = PreProcess(tr_small)
+    tst_prp = PreProcess(tst_small)
 
-# score= clf.DecisionTrees()
-# print(score)
+    tr_clean_data = tr_prp.clean(combination)
+    tst_clean_data = tst_prp.clean(combination)
 
-# print(clf.RandomForrests(criterion='entropy'))
+    vectorizer = Vectorizer(type=vec[0],fit_data=tr_clean_data,params=vec[1])
+    tr_small_vecs = vectorizer.vectorize(tr_clean_data)
+    tst_small_vecs = vectorizer.vectorize(tst_clean_data)
+    for cl in clf_list:
+      print('Classifier: ' + cl[0].__str__())
 
-# print(clf.SVM())
+      clf = Classifier(cl[0], [d[1] for d in tr_small_vecs], [d[2] for d in tr_small_vecs])
+      params_accs = clf.tune(
+        cl[1],
+        [d[1] for d in tst_small_vecs],
+        [d[2] for d in tst_small_vecs],
+        max_only=False
+      )
+      # should have dict of clfs contatining dict of params with all accuracies & methods tried
+      for key, value in params_accs.items():
+        if key in clf_dict[cl[0]]:
+          clf_dict[cl[0]][key] += [(value, vec, combination)]
+        else:
+          clf_dict[cl[0]][key] = [(value, vec, combination)]
+      
 
-# print(clf.MLP())
 
-# print(clf.LogisticRegression())
