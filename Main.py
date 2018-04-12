@@ -21,7 +21,7 @@ train_prp.remove_stopwords()
 #train_StemSB = train_prp.stemmingSB()
 train_StemLemmatize = train_prp.lemmatize()
 
-vectorizer = Vectorizer(type='wordembedd', fit_data=tr_small, params={'min_count': 1, 'size': 1000})
+vectorizer = Vectorizer(type='fastext', fit_data=tr_small, params={'min_count': 1})
 tr_small_vecs = vectorizer.vectorize(tr_small)
 
 tst_data = dsr.labelled_string_data('test')
