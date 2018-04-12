@@ -41,7 +41,7 @@ tst_StemLemmatize = tst_prp.lemmatize()
 tst_small_vecs = vectorizer.vectorize(tst_small)
 clf = Classify(tr_small_vecs,tst_small_vecs)
 
-score= clf.DecisionTrees()
-print(score)
+score= clf.decision_trees()
+#print(score)
 
-print(clf.RandomForrests(criterion='entropy'))
+print(clf.bagging())
