@@ -16,11 +16,10 @@ tr_small = tr_negative[:500]+tr_positive[:500]
 train_prp = PreProcess(tr_small)
 tr_small = train_prp.tokenize()
 train_prp.remove_stopwords()
-train_StemPS = train_prp.stemmingPS()
+#train_StemPS = train_prp.stemmingPS()
 #train_StemLS = train_prp.stemmingLS()
 #train_StemSB = train_prp.stemmingSB()
-#train_StemLemmatize = train_prp.lemmatize()
-print(tr_small)
+train_StemLemmatize = train_prp.lemmatize()
 
 vectorizer = Vectorizer(type='wordembedd', fit_data=tr_small, params={'min_count': 1, 'size': 1000})
 tr_small_vecs = vectorizer.vectorize(tr_small)

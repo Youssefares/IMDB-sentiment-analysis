@@ -19,10 +19,11 @@ class Vectorizer:
     elif type == 'wordembedd':
       sentences = [d[1] for d in fit_data]
       self.vectorizer = Word2Vec(sentences, **params)
+      self.vectorizer = self.vectorizer.wv
       self.vectorize_call = lambda data: [
         np.concatenate(
-            ([np.max(np.array([self.vectorizer.wv[word] for word in sentence]), 0)],
-           [np.min(np.array([self.vectorizer.wv[word] for word in sentence]), 0)]), axis=1
+            ([np.max(np.array([self.vectorizer[word] for word in sentence]), 0)],
+           [np.min(np.array([self.vectorizer[word] for word in sentence]), 0)]), axis=1
         ) for sentence in data
       ]
 
