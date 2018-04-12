@@ -22,8 +22,8 @@ class Vectorizer:
       self.vectorizer = self.vectorizer.wv
       self.vectorize_call = lambda data: [
         np.concatenate(
-            ([np.max(np.array([self.vectorizer[word] for word in sentence]), 0)],
-           [np.min(np.array([self.vectorizer[word] for word in sentence]), 0)]), axis=1
+            ([np.max(np.array([self.vectorizer[word] for word in sentence if word in self.vectorizer.vocab]), 0)],
+           [np.min(np.array([self.vectorizer[word] for word in sentence if word in self.vectorizer.vocab]), 0)]), axis=1
         ) for sentence in data
       ]
 

@@ -33,10 +33,10 @@ tst_small = tst_negative[:500]+tst_positive[:500]
 tst_prp = PreProcess(tst_small)
 tst_small = tst_prp.tokenize()
 tst_prp.remove_stopwords()
-tst_StemPS = tst_prp.stemmingPS()
-tst_StemLS = tst_prp.stemmingLS()
-tst_StemSB = tst_prp.stemmingSB()
-tst_StemLemmatize = tst_prp.lemmatize()
+# tst_StemPS = tst_prp.stemmingPS()
+# tst_StemLS = tst_prp.stemmingLS()
+# tst_StemSB = tst_prp.stemmingSB()
+# tst_StemLemmatize = tst_prp.lemmatize()
 
 tst_small_vecs = vectorizer.vectorize(tst_small)
 
