@@ -1,3 +1,7 @@
+import warnings
+warnings.filterwarnings(action='ignore', category=UserWarning, module='gensim')
+from gensim.models import Word2Vec
+import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
 class Vectorizer:
@@ -11,6 +15,17 @@ class Vectorizer:
       self.vectorizer = TfidfVectorizer(**params)
       self.vectorizer.fit([' '.join(d[1]) for d in fit_data])
       self.vectorize_call = lambda data: self.vectorizer.transform(data).toarray()
+
+    elif type == 'wordembedd':
+      sentences = [d[1] for d in fit_data]
+      self.vectorizer = Word2Vec(sentences, **params)
+      self.vectorize_call = lambda data: [
+        np.concatenate(
+            ([np.max(np.array([self.vectorizer.wv[word] for word in sentence]), 0)],
+           [np.min(np.array([self.vectorizer.wv[word] for word in sentence]), 0)]), axis=1
+        ) for sentence in data
+      ]
+
 
   def vectorize(self, data):
     # extract reviews from second column

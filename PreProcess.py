@@ -73,7 +73,7 @@ class PreProcess:
 
       wnl = WordNetLemmatizer()
       temp = copy.deepcopy(self.data)
-      for i in range(len(temp)):
-          for j in range(len(temp[i][1])):
-              temp[i][1][j] = wnl.lemmatize(temp[i][1][j], pos = self.get_pos(temp[i][1][j]))
-      return temp
+      for i in range(len(self.data)):
+          for j in range(len(self.data[i][1])):
+              self.data[i][1][j] = wnl.lemmatize(self.data[i][1][j], pos=self.get_pos(self.data[i][1][j]))
+      return self.data

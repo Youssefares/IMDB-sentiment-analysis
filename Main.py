@@ -2,9 +2,8 @@ from DataSetReader import DataSetReader
 from PreProcess import PreProcess
 from Vectorizer import Vectorizer
 from Classify import Classify
-import numpy as np
 
-dsr = DataSetReader(directory="../aclImdb/")
+dsr = DataSetReader(directory="./aclImdb/")
 
 tr_data = dsr.labelled_string_data('train')
 # Data split by label
@@ -18,11 +17,12 @@ train_prp = PreProcess(tr_small)
 tr_small = train_prp.tokenize()
 train_prp.remove_stopwords()
 train_StemPS = train_prp.stemmingPS()
-train_StemLS = train_prp.stemmingLS()
-train_StemSB = train_prp.stemmingSB()
-train_StemLemmatize = train_prp.lemmatize()
+#train_StemLS = train_prp.stemmingLS()
+#train_StemSB = train_prp.stemmingSB()
+#train_StemLemmatize = train_prp.lemmatize()
+print(tr_small)
 
-vectorizer = Vectorizer(type='tfidf', fit_data=tr_small, params={'ngram_range': (1, 3)})
+vectorizer = Vectorizer(type='wordembedd', fit_data=tr_small, params={'min_count': 1, 'size': 1000})
 tr_small_vecs = vectorizer.vectorize(tr_small)
 
 tst_data = dsr.labelled_string_data('test')
@@ -43,5 +43,5 @@ tst_small_vecs = vectorizer.vectorize(tst_small)
 
 clf = Classify(tr_small_vecs,tst_small_vecs)
 
-score,n,h= clf.RandomForrests()
+score= clf.DecisionTrees()
 print(score)
