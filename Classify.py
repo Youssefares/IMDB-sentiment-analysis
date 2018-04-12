@@ -58,3 +58,18 @@ class Classify:
     n_trees=scores[-1][0]
     h_score=scores[-1][1]
     return scores, n_trees,h_score
+
+  def SVM(self):
+    from sklearn.svm import SVC
+    clf = SVC().fit(self.tr_vecs, self.tr_labels)
+    return clf.score(self.tst_vecs, self.tst_labels)
+
+  def MLP(self):
+    from sklearn.neural_network import MLPClassifier
+    clf = MLPClassifier().fit(self.tr_vecs, self.tr_labels)
+    return clf.score(self.tst_vecs, self.tst_labels)
+
+  def LogisticRegression(self):
+    from sklearn.linear_model import LogisticRegression
+    clf = LogisticRegression().fit(self.tr_vecs, self.tr_labels)
+    return clf.score(self.tst_vecs, self.tst_labels)

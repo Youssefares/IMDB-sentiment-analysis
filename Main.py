@@ -45,3 +45,9 @@ score= clf.DecisionTrees()
 print(score)
 
 print(clf.RandomForrests(criterion='entropy'))
+
+print(clf.SVM())
+
+print(clf.MLP())
+
+print(clf.LogisticRegression())
