@@ -21,7 +21,7 @@ train_prp.remove_stopwords()
 #train_StemSB = train_prp.stemmingSB()
 train_StemLemmatize = train_prp.lemmatize()
 
-vectorizer = Vectorizer(type='wordembedd', fit_data=tr_small, params={'min_count': 1, 'size': 1000})
+vectorizer = Vectorizer(type='wordembedd', fit_data=tr_small, params={'min_count': 1, 'size': 200000})
 tr_small_vecs = vectorizer.vectorize(tr_small)
 
 tst_data = dsr.labelled_string_data('test')
@@ -33,14 +33,15 @@ tst_small = tst_negative[:500]+tst_positive[:500]
 tst_prp = PreProcess(tst_small)
 tst_small = tst_prp.tokenize()
 tst_prp.remove_stopwords()
-# tst_StemPS = tst_prp.stemmingPS()
-# tst_StemLS = tst_prp.stemmingLS()
-# tst_StemSB = tst_prp.stemmingSB()
-# tst_StemLemmatize = tst_prp.lemmatize()
+tst_StemPS = tst_prp.stemmingPS()
+tst_StemLS = tst_prp.stemmingLS()
+tst_StemSB = tst_prp.stemmingSB()
+tst_StemLemmatize = tst_prp.lemmatize()
 
 tst_small_vecs = vectorizer.vectorize(tst_small)
-
 clf = Classify(tr_small_vecs,tst_small_vecs)
 
 score= clf.DecisionTrees()
 print(score)
+
+print(clf.RandomForrests(criterion='entropy'))
