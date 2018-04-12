@@ -1,3 +1,6 @@
+from sklearn.ensemble import RandomForestClassifier
+
+
 class Classify:
   """
   Class for classifying data after vectorization
@@ -10,7 +13,7 @@ class Classify:
     self.tst_vecs = [d[1] for d in self.tst_data]
     self.tst_labels = [d[2] for d in self.tst_data]
 
-  def KNN(self):
+  def knn(self):
     from sklearn.neighbors import KNeighborsClassifier
     scores = []
     scores.append([0,0])
@@ -27,7 +30,7 @@ class Classify:
       print(scores)
     return scores
 
-  def DecisionTrees(self):
+  def decision_trees(self):
     from sklearn.tree import DecisionTreeClassifier
     results = []
     clf = DecisionTreeClassifier().fit(self.tr_vecs,self.tr_labels)
@@ -39,7 +42,7 @@ class Classify:
     results.append(['Entropy', score])
     return results
 
-  def RandomForrests(self, criterion='gini'):
+  def random_forests(self, criterion='gini'):
     from sklearn.ensemble import RandomForestClassifier
     i=0
     n_trees = 100
@@ -58,6 +61,15 @@ class Classify:
     n_trees=scores[-1][0]
     h_score=scores[-1][1]
     return scores, n_trees,h_score
+
+  def bagging(self):
+    from sklearn.ensemble import BaggingClassifier
+    cart = RandomForestClassifier()
+    num_trees = 100
+    clf = BaggingClassifier(base_estimator=cart, n_estimators=num_trees, oob_score=True)
+    clf.fit(self.tr_vecs, self.tr_labels)
+    scores = clf.score(self.tst_vecs, self.tst_labels)
+    return scores
 
   def SVM(self):
     from sklearn.svm import SVC

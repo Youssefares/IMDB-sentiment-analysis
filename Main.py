@@ -66,7 +66,6 @@ print(clf.tune(
 )
 
 
-
 # clf = Classify(tr_small_vecs,tst_small_vecs)
 
 # score= clf.DecisionTrees()
