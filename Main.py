@@ -70,6 +70,3 @@ for vec in vec_list:
           clf_dict[cl[0]][key] += [(value, vec, combination)]
         else:
           clf_dict[cl[0]][key] = [(value, vec, combination)]
-      
-
-
