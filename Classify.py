@@ -70,3 +70,18 @@ class Classify:
     clf.fit(self.tr_vecs, self.tr_labels)
     scores = clf.score(self.tst_vecs, self.tst_labels)
     return scores
+
+  def SVM(self):
+    from sklearn.svm import SVC
+    clf = SVC().fit(self.tr_vecs, self.tr_labels)
+    return clf.score(self.tst_vecs, self.tst_labels)
+
+  def MLP(self):
+    from sklearn.neural_network import MLPClassifier
+    clf = MLPClassifier().fit(self.tr_vecs, self.tr_labels)
+    return clf.score(self.tst_vecs, self.tst_labels)
+
+  def LogisticRegression(self):
+    from sklearn.linear_model import LogisticRegression
+    clf = LogisticRegression().fit(self.tr_vecs, self.tr_labels)
+    return clf.score(self.tst_vecs, self.tst_labels)

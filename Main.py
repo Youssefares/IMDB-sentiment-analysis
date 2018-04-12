@@ -45,3 +45,11 @@ score= clf.decision_trees()
 #print(score)
 
 print(clf.bagging())
+print(clf.RandomForrests(criterion='entropy'))
+print(clf.RandomForrests(criterion='entropy'))
+
+print(clf.SVM())
+
+print(clf.MLP())
+
+print(clf.LogisticRegression())
