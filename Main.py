@@ -31,7 +31,8 @@ def plot_clfs(width,max_num,acc_sep,param_sep):
     print(key)
     plt_acc = []
     plt_tks = []
-    plt.figure()
+    my_dpi = 192
+    plt.figure(figsize=(4096 / my_dpi, 2160 / my_dpi), dpi=my_dpi)
     for k, v in value.items():
       plt.title(key.__str__())
       plt_arr, plt_arr_ticks = get_plot_arrs(k,max_num, v)
@@ -86,7 +87,7 @@ vec_list = [['tfidf',{}],['count',{}],['wordembedd',{'min_count':1}],['fasttext'
 clf_list = [['KNN',{}],['SVC',{}],['DecisionTree',{}],['RandomForestClassifier',{}],['LogisticRegression',{}]
   ,['MLP',{}],['AdaBoost',{}],['Bagging',{}]]
 
-clf_list = [['RandomForestClassifier',{'n_estimators': [i for i in range(10,30,10)]}],
+clf_list = [['RandomForestClassifier',{'n_estimators': [i for i in range(10,80,10)]}],
             ['KNN',{'n_neighbors':[i for i in range (1,6,2)]}]
            ]
 vec_list = [['wordembedd',{'min_count':1}],['tfidf',{}]]
