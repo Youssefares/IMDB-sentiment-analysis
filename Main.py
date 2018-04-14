@@ -33,6 +33,10 @@ def plot_clfs(width,max_num,acc_sep,param_sep):
     plt_tks = []
     my_dpi = 192
     plt.figure(figsize=(4096 / my_dpi, 2160 / my_dpi), dpi=my_dpi)
+    acc_sep = acc_sep
+    param_sep = param_sep
+    acc_sep += len(value)/20
+    param_sep += len(value)/10
     for k, v in value.items():
       plt.title(key.__str__())
       plt_arr, plt_arr_ticks = get_plot_arrs(k,max_num, v)
@@ -88,7 +92,10 @@ clf_list = [['KNN',{}],['SVC',{}],['DecisionTree',{}],['RandomForestClassifier',
   ,['MLP',{}],['AdaBoost',{}],['Bagging',{}]]
 
 clf_list = [['RandomForestClassifier',{'n_estimators': [i for i in range(10,80,10)]}],
-            ['KNN',{'n_neighbors':[i for i in range (1,6,2)]}]
+            ['KNN',{'n_neighbors':[i for i in range (1,6,2)]}],
+            ['SVC',{'C': [0.1,10,20],
+                    'kernel':['rbf','poly','sigmoid']
+                    }]
            ]
 vec_list = [['wordembedd',{'min_count':1}],['tfidf',{}]]
 
@@ -111,7 +118,6 @@ for vec in vec_list:
     tst_small_vecs = vectorizer.vectorize(tst_clean_data)
     for cl in clf_list:
       print('Classifier: ' + cl[0].__str__())
-
       clf = Classifier(cl[0], [d[1] for d in tr_small_vecs], [d[2] for d in tr_small_vecs])
       params_accs = clf.tune(
         cl[1],
