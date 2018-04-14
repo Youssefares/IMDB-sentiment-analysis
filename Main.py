@@ -3,8 +3,65 @@ from PreProcess import PreProcess
 from Vectorizer import Vectorizer
 from Classify import Classify
 from NewClassifier import Classifier
+import itertools
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import OrderedDict
 
-dsr = DataSetReader(directory="./aclImdb/")
+def clean_string(str):
+  newstr = ''
+  noise = ['[',']','{','}',"'",'(',')',',']
+  for c in str:
+    if c == ' ':
+      newstr+='\n'
+    elif c not in noise:
+      newstr+= c
+  return newstr
+
+def get_plot_arrs(params,acc_num, items):
+  plt_arr = [acc[0] for acc in items]
+  plt_arr = [plt_arr[i] for i in range (0,acc_num)]
+  ticks_arr = [clean_string(acc[1].__str__())+clean_string(acc[2].__str__())+'\n Parameters: '+
+               clean_string(params.__str__())for acc in v]
+  ticks_arr = [ticks_arr[i] for i in range (0,acc_num)]
+  return plt_arr,ticks_arr
+
+def plot_clfs(width,max_num,acc_sep,param_sep):
+  for key, value in clf_dict.items():
+    print(key)
+    plt_acc = []
+    plt_tks = []
+    my_dpi = 192
+    plt.figure(figsize=(4096 / my_dpi, 2160 / my_dpi), dpi=my_dpi)
+    acc_sep = acc_sep
+    param_sep = param_sep
+    acc_sep += len(value)/20
+    param_sep += len(value)/10
+    for k, v in value.items():
+      plt.title(key.__str__())
+      plt_arr, plt_arr_ticks = get_plot_arrs(k,max_num, v)
+      print(plt_arr, plt_arr_ticks)
+      if not plt_acc:
+        plt_acc = plt_arr
+        plt_tks = plt_arr_ticks
+      else:
+        plt_acc += plt_arr
+        plt_tks += plt_arr_ticks
+    ind = np.array(1)
+    x = 1
+    for i in range(1, len(plt_acc)):
+      if ((i) % max_num == 0):
+        x += param_sep * width
+      else:
+        x += acc_sep * width
+      ind = np.append(ind, x)
+    ind = ind[0:len(plt_acc)]
+    plt.bar(ind, plt_acc, width=width)
+    plt.xticks(ind, plt_tks)
+    plt.show()
+
+
+dsr = DataSetReader(directory="../aclImdb/")
 
 tr_data = dsr.labelled_string_data('train')
 # Data split by label
@@ -14,67 +71,76 @@ tr_negative, tr_positive = tr_data[:len(tr_data)//2], tr_data[len(tr_data)//2:]
 tr_small = tr_negative[:500]+tr_positive[:500]
 
 
-train_prp = PreProcess(tr_small)
-tr_small = train_prp.tokenize()
-train_prp.remove_stopwords()
-#train_StemPS = train_prp.stemmingPS()
-#train_StemLS = train_prp.stemmingLS()
-#train_StemSB = train_prp.stemmingSB()
-train_StemLemmatize = train_prp.lemmatize()
-
-vectorizer = Vectorizer(type='fastext', fit_data=tr_small, params={'min_count': 1})
-tr_small_vecs = vectorizer.vectorize(tr_small)
-
 tst_data = dsr.labelled_string_data('test')
 
 tst_negative, tst_positive = tst_data[:len(tst_data)//2], tst_data[len(tst_data)//2:]
 
 tst_small = tst_negative[:500]+tst_positive[:500]
 
-tst_prp = PreProcess(tst_small)
-tst_small = tst_prp.tokenize()
-tst_prp.remove_stopwords()
-tst_StemPS = tst_prp.stemmingPS()
-tst_StemLS = tst_prp.stemmingLS()
-tst_StemSB = tst_prp.stemmingSB()
-tst_StemLemmatize = tst_prp.lemmatize()
 
-tst_small_vecs = vectorizer.vectorize(tst_small)
+# Preprocessing combinations
+cleaning_operations = ['remove_stopwords','lemmatize','stemmingLS','stemmingPS','stemmingSB'];
+cleaning_operations = ['remove_stopwords','lemmatize'];
 
+combinations = [i for j in range(len(cleaning_operations)) for i in itertools.combinations(cleaning_operations,j+1)]
 
-clf = Classifier('SVC', [d[1] for d in tr_small_vecs], [d[2] for d in tr_small_vecs])
-print(clf.tune(
-  {
-    'C': [0.2, 1.0, 2.0, 3.0, 10.0, 100.0],
-    'kernel': ['rbf', 'linear', 'poly', 'sigmoid']
-  },
-  [d[1] for d in tst_small_vecs],
-  [d[2] for d in tst_small_vecs],
-  max_only=False
-  )
-)
+# Vectorizers
+vec_list = [['tfidf',{}],['count',{}],['wordembedd',{'min_count':1}],['fasttext',{}]]
 
-clf = Classifier('KNN', [d[1] for d in tr_small_vecs], [d[2] for d in tr_small_vecs])
-print(clf.tune(
-  {
-    'n_neighbors': [i for i in range(1, 11, 2)]
-  },
-  [d[1] for d in tst_small_vecs],
-  [d[2] for d in tst_small_vecs],
-  max_only=False
-  )
-)
+# Classifiers
+clf_list = [['KNN',{}],['SVC',{}],['DecisionTree',{}],['RandomForestClassifier',{}],['LogisticRegression',{}]
+  ,['MLP',{}],['AdaBoost',{}],['Bagging',{}]]
+
+clf_list = [['RandomForestClassifier',{'n_estimators': [i for i in range(10,80,10)]}],
+            ['KNN',{'n_neighbors':[i for i in range (1,6,2)]}],
+            ['SVC',{'C': [0.1,10,20],
+                    'kernel':['rbf','poly','sigmoid']
+                    }]
+           ]
+vec_list = [['wordembedd',{'min_count':1}],['tfidf',{}]]
 
 
-# clf = Classify(tr_small_vecs,tst_small_vecs)
+# ex: {'KNN': [(acc, vectorization, preprocessing_ops)], 'LR': ... }
+clf_dict = {clf[0]: {} for clf in clf_list}
+for vec in vec_list:
+  print()
+  print('Vectorization: '+vec[0].__str__())
+  for combination in combinations:
+    print('Preprocessing: ' + combination.__str__())
+    tr_prp = PreProcess(tr_small)
+    tst_prp = PreProcess(tst_small)
 
-# score= clf.DecisionTrees()
-# print(score)
+    tr_clean_data = tr_prp.clean(combination)
+    tst_clean_data = tst_prp.clean(combination)
 
-# print(clf.RandomForrests(criterion='entropy'))
+    vectorizer = Vectorizer(type=vec[0],fit_data=tr_clean_data,params=vec[1])
+    tr_small_vecs = vectorizer.vectorize(tr_clean_data)
+    tst_small_vecs = vectorizer.vectorize(tst_clean_data)
+    for cl in clf_list:
+      print('Classifier: ' + cl[0].__str__())
+      clf = Classifier(cl[0], [d[1] for d in tr_small_vecs], [d[2] for d in tr_small_vecs])
+      params_accs = clf.tune(
+        cl[1],
+        [d[1] for d in tst_small_vecs],
+        [d[2] for d in tst_small_vecs],
+        max_only=False
+      )
+      # should have dict of clfs contatining dict of params with all accuracies & methods tried
+      for key, value in params_accs.items():
+        if key in clf_dict[cl[0]]:
+          clf_dict[cl[0]][key] += [(value, vec,combination)]
+        else:
+          clf_dict[cl[0]][key] = [(value, vec, combination)]
 
-# print(clf.SVM())
+for key,value in clf_dict.items():
+  for k,v in value.items():
+    v = (sorted(v, key=lambda x: x[0], reverse=True))
+    clf_dict[key][k] = v
 
-# print(clf.MLP())
+print(clf_dict)
 
-# print(clf.LogisticRegression())
+plot_clfs(0.15,3,1.2,2.8)
+# width = 0.15
+# max_num = 3
+# acc_sep = 1.2
+# param_sep = 2.8
