@@ -28,12 +28,10 @@ class Vectorizer:
       sentences = [d[1] for d in fit_data]
       self.vectorizer = FastText(sentences, **params)
       self.vectorizer = self.vectorizer.wv
+      min = np.min([len(sentence) for sentence in sentences])
       self.vectorize_call = lambda data: [
-        np.concatenate(
-            ([np.max(np.array([self.vectorizer[word] for word in sentence if word in self.vectorizer.vocab]), 0)],
-             [np.min(np.array([self.vectorizer[word] for word in sentence if word in self.vectorizer.vocab]), 0)]),
-            axis=1
-        ).flatten() for sentence in data
+        np.array([self.vectorizer[word] for word in sentence[:min] if word in self.vectorizer.vocab]).flatten() for
+        sentence in sentences
       ]
 
 
