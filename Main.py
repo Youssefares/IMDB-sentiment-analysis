@@ -32,7 +32,7 @@ def plot_clfs(width,max_num,acc_sep,param_sep):
     plt_acc = []
     plt_tks = []
     my_dpi = 192
-    plt.figure(figsize=(4096 / my_dpi, 2160 / my_dpi), dpi=my_dpi)
+    fig = plt.figure(figsize=(4096 / my_dpi, 2160 / my_dpi), dpi=my_dpi)
     acc_sep = acc_sep
     param_sep = param_sep
     acc_sep += len(value)/20
@@ -56,9 +56,11 @@ def plot_clfs(width,max_num,acc_sep,param_sep):
         x += acc_sep * width
       ind = np.append(ind, x)
     ind = ind[0:len(plt_acc)]
-    plt.bar(ind, plt_acc, width=width)
+    colors =['#009688','#35a79c','#54b2a9','#65c3ba','#83d0c9','#8fd4ce','#9bd9d3']
+    colors =[colors[i] for i in range(0,max_num)]
+    plt.bar(ind, plt_acc, width=width,color=colors)
     plt.xticks(ind, plt_tks)
-    plt.show()
+  plt.show()
 
 
 dsr = DataSetReader(directory="../aclImdb/")
@@ -68,14 +70,14 @@ tr_data = dsr.labelled_string_data('train')
 tr_negative, tr_positive = tr_data[:len(tr_data)//2], tr_data[len(tr_data)//2:]
 
 # small set of data of size 1000
-tr_small = tr_negative[:500]+tr_positive[:500]
+tr_small = tr_negative[:10]+tr_positive[:10]
 
 
 tst_data = dsr.labelled_string_data('test')
 
 tst_negative, tst_positive = tst_data[:len(tst_data)//2], tst_data[len(tst_data)//2:]
 
-tst_small = tst_negative[:500]+tst_positive[:500]
+tst_small = tst_negative[:10]+tst_positive[:10]
 
 
 # Preprocessing combinations
@@ -92,12 +94,10 @@ clf_list = [['KNN',{}],['SVC',{}],['DecisionTree',{}],['RandomForestClassifier',
   ,['MLP',{}],['AdaBoost',{}],['Bagging',{}]]
 
 clf_list = [['RandomForestClassifier',{'n_estimators': [i for i in range(10,80,10)]}],
-            ['KNN',{'n_neighbors':[i for i in range (1,6,2)]}],
-            ['SVC',{'C': [0.1,10,20],
-                    'kernel':['rbf','poly','sigmoid']
-                    }]
+            ['KNN',{'n_neighbors':[i for i in range(1,6,2)]}]
            ]
-vec_list = [['wordembedd',{'min_count':1}],['tfidf',{}]]
+clf_list=[['RandomForestClassifier',{'n_estimators':[80]}]]
+vec_list = [['fastext',{'min_count':1}]]
 
 
 # ex: {'KNN': [(acc, vectorization, preprocessing_ops)], 'LR': ... }

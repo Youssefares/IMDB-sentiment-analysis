@@ -40,7 +40,12 @@ class Classifier:
         max_params = params
 
     # setting class best params and current score
-    return {max(all_params):max_score}
+    self.max_params = max_params
+    self.score = max_score
+    if max_only:
+      return max_params
+    else:
+      return all_params
 
   def score(self, params, tst_data, tst_labels):
     clf = self.clf_call(**params).fit(self.fit_data, self.fit_labels)
