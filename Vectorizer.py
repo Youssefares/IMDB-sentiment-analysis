@@ -9,12 +9,12 @@ class Vectorizer:
     if type == 'count':
       self.vectorizer = CountVectorizer(**params)
       self.vectorizer.fit([' '.join(d[1]) for d in fit_data])
-      self.vectorize_call = lambda data: self.vectorizer.transform(data).toarray()
+      self.vectorize_call = lambda data: self.vectorizer.transform([' '.join(d) for d in data]).toarray()
     
     elif type == 'tfidf':
       self.vectorizer = TfidfVectorizer(**params)
       self.vectorizer.fit([' '.join(d[1]) for d in fit_data])
-      self.vectorize_call = lambda data: self.vectorizer.transform(data).toarray()
+      self.vectorize_call = lambda data: self.vectorizer.transform([' '.join(d) for d in data]).toarray()
 
     elif type == 'wordembedd':
       sentences = [d[1] for d in fit_data]
@@ -22,21 +22,22 @@ class Vectorizer:
       self.vectorizer = self.vectorizer.wv
       min = np.min([len(sentence) for sentence in sentences])
       self.vectorize_call = lambda data: [
-        np.array([self.vectorizer[word] for word in sentence[:min] if word in self.vectorizer.vocab]).flatten() for sentence in sentences
+        np.array([self.vectorizer[word] for word in sentence[:np.min([len(sentence) for sentence in data])] if word in self.vectorizer.vocab]).flatten() for sentence in data
       ]
+
     elif type == 'fastext':
       sentences = [d[1] for d in fit_data]
       self.vectorizer = FastText(sentences, **params)
       self.vectorizer = self.vectorizer.wv
       min = np.min([len(sentence) for sentence in sentences])
       self.vectorize_call = lambda data: [
-        np.array([self.vectorizer[word] for word in sentence[:min] if word in self.vectorizer.vocab]).flatten() for
-        sentence in sentences
+        np.array([self.vectorizer[word] for word in sentence[:np.min([len(sentence) for sentence in data])] if word in self.vectorizer.vocab]).flatten() for sentence in data
       ]
+
 
 
   def vectorize(self, data):
     # extract reviews from second column
-    reviews = [' '.join(d[1]) for d in data]
+    reviews = [d[1] for d in data]
     reviews_vectors = self.vectorize_call(reviews)
     return [[d[0], reviews_vectors[i], d[2]] for i, d in enumerate(data)]
