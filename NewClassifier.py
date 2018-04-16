@@ -43,7 +43,7 @@ class Classifier:
     self.max_params = max_params
     self.score = max_score
     if max_only:
-      return max_params
+     return {max(all_params):max_score}
     else:
       return all_params
 

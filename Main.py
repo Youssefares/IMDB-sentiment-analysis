@@ -26,7 +26,12 @@ def get_plot_arrs(params,acc_num, items):
   ticks_arr = [ticks_arr[i] for i in range (0,acc_num)]
   return plt_arr,ticks_arr
 
-def plot_clfs(width,max_num,acc_sep,param_sep):
+def plot_clfs(width=0.15,max_num=3,acc_sep=1.2,param_sep=2.8):
+
+  # width: width of bar
+  # max_num: number of accuracies to plot per parameter
+  # acc_sep: seperation between accuracies for a prameter
+  # param_sep: seperation between parameters
   for key, value in clf_dict.items():
     print(key)
     plt_acc = []
@@ -66,38 +71,35 @@ def plot_clfs(width,max_num,acc_sep,param_sep):
 dsr = DataSetReader(directory="../aclImdb/")
 
 tr_data = dsr.labelled_string_data('train')
-# Data split by label
+# Training Data split by label
 tr_negative, tr_positive = tr_data[:len(tr_data)//2], tr_data[len(tr_data)//2:]
 
 # small set of data of size 1000
-tr_small = tr_negative[:10]+tr_positive[:10]
-
+tr_small = tr_negative[:500]+tr_positive[:500]
 
 tst_data = dsr.labelled_string_data('test')
 
+# Test Data split by label
 tst_negative, tst_positive = tst_data[:len(tst_data)//2], tst_data[len(tst_data)//2:]
 
-tst_small = tst_negative[:10]+tst_positive[:10]
+# small set of data of size 1000
+tst_small = tst_negative[:500]+tst_positive[:500]
 
 
 # Preprocessing combinations
 cleaning_operations = ['remove_stopwords','lemmatize','stemmingLS','stemmingPS','stemmingSB'];
-cleaning_operations = ['remove_stopwords','lemmatize'];
-
 combinations = [i for j in range(len(cleaning_operations)) for i in itertools.combinations(cleaning_operations,j+1)]
 
 # Vectorizers
-vec_list = [['tfidf',{}],['count',{}],['wordembedd',{'min_count':1}],['fasttext',{}]]
+vec_list = [['tfidf',{}],['count',{}],['wordembedd',{'min_count':1}],['fasttext',{'min_count':1}]]
 
 # Classifiers
-clf_list = [['KNN',{}],['SVC',{}],['DecisionTree',{}],['RandomForestClassifier',{}],['LogisticRegression',{}]
-  ,['MLP',{}],['AdaBoost',{}],['Bagging',{}]]
-
-clf_list = [['RandomForestClassifier',{'n_estimators': [i for i in range(10,80,10)]}],
-            ['KNN',{'n_neighbors':[i for i in range(1,6,2)]}]
+clf_list = [['RandomForestClassifier',{'n_estimators': [i for i in range(10,200,10)]}],
+            ['KNN',{'n_neighbors':[i for i in range(1,8,2)]}],
+            ['SVC',{'C':[0.1,10,100],'kernel':['rbf','poly']}],
+            ['LogisticRegression',{'penalty':['l2'],'solver' : ['newton-cg', 'lbfgs', 'sag']}],
+            ['DecisionTree',{'criterion':['gini','entropy']}]
            ]
-clf_list=[['RandomForestClassifier',{'n_estimators':[80]}]]
-vec_list = [['fastext',{'min_count':1}]]
 
 
 # ex: {'KNN': [(acc, vectorization, preprocessing_ops)], 'LR': ... }
@@ -113,9 +115,8 @@ for vec in vec_list:
     tr_clean_data = tr_prp.clean(combination)
     tst_clean_data = tst_prp.clean(combination)
 
-    vectorizer = Vectorizer(type=vec[0],fit_data=tr_clean_data,params=vec[1])
-    tr_small_vecs = vectorizer.vectorize(tr_clean_data)
-    tst_small_vecs = vectorizer.vectorize(tst_clean_data)
+    vectorizer = Vectorizer(type=vec[0],fit_data=tr_clean_data,tst_data=tst_clean_data,params=vec[1])
+    tr_small_vecs, tst_small_vecs = vectorizer.vectorize()
     for cl in clf_list:
       print('Classifier: ' + cl[0].__str__())
       clf = Classifier(cl[0], [d[1] for d in tr_small_vecs], [d[2] for d in tr_small_vecs])
@@ -125,6 +126,7 @@ for vec in vec_list:
         [d[2] for d in tst_small_vecs],
         max_only=False
       )
+      print('Scores:'+params_accs.__str__())
       # should have dict of clfs contatining dict of params with all accuracies & methods tried
       for key, value in params_accs.items():
         if key in clf_dict[cl[0]]:
@@ -132,15 +134,12 @@ for vec in vec_list:
         else:
           clf_dict[cl[0]][key] = [(value, vec, combination)]
 
+# Sorting accuracies dict
 for key,value in clf_dict.items():
   for k,v in value.items():
     v = (sorted(v, key=lambda x: x[0], reverse=True))
     clf_dict[key][k] = v
-
 print(clf_dict)
 
-plot_clfs(0.15,3,1.2,2.8)
-# width = 0.15
-# max_num = 3
-# acc_sep = 1.2
-# param_sep = 2.8
+# Plots
+plot_clfs(width=0.15,max_num=3,acc_sep=1.2,param_sep=2.8)
