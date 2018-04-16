@@ -25,7 +25,7 @@ class Vectorizer:
         np.array([self.vectorizer[word] for word in sentence[:np.min([len(sentence) for sentence in data])] if word in self.vectorizer.vocab]).flatten() for sentence in data
       ]
 
-    elif type == 'fastext':
+    elif type == 'fasttext':
       sentences = [d[1] for d in fit_data]
       self.vectorizer = FastText(sentences, **params)
       self.vectorizer = self.vectorizer.wv
